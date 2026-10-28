@@ -38,8 +38,8 @@ def get_json(url):
         return json.loads(r.read())
 
 
-def post_json(url, payload):
-    data = json.dumps(payload).encode()
+def post_json(url, payload=None):
+    data = json.dumps(payload).encode() if payload is not None else b''
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
     with urllib.request.urlopen(req) as r:
         return r.read()
@@ -61,11 +61,13 @@ def pick_style_id(speakers):
 
 
 def synthesize(word, style_id, retries=3):
-    q = get_json(f"{ENGINE}/audio_query?speaker={style_id}&text={urllib.parse.quote(word + '。')}")
+    # both endpoints are POST in the VOICEVOX engine API
+    q = post_json(f"{ENGINE}/audio_query?speaker={style_id}&text={urllib.parse.quote(word + '。')}")
+    q = json.loads(q)
     for attempt in range(retries):
         try:
             return post_json(f'{ENGINE}/synthesis?speaker={style_id}', q)
-        except Exception as e:
+        except Exception:
             if attempt == retries - 1:
                 raise
             time.sleep(1)

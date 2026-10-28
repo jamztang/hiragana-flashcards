@@ -1,6 +1,6 @@
 # Licensing Notes — Hiragana Flashcards
 
-**Status: fine for a personal prototype. One blocker to fix before any public release.**
+**Status: ✅ VOICEVOX clips in use — clean for public release with credit (see below).**
 
 ## Component-by-component
 
@@ -12,7 +12,14 @@
 | Emoji | Unicode standard characters | Free to use |
 | Web Speech API (recognition) | Browser platform feature | Platform license; fine to call |
 | transformers.js (Whisper offline ASR) | Hugging Face (MIT) + OpenAI Whisper (MIT, incl. model weights) | ✅ Clean for commercial use |
-| **Kyoko voice recordings** (`audio/words/*.m4a`) | Generated with macOS `say` (Apple) | ⚠️ **Restricted** |
+| **Word recordings** (`audio/words/*.m4a`) | VOICEVOX engine, 四国めたん (ノーマル) | ✅ Commercial use permitted **with credit: "VOICEVOX:四国めたん"** |
+
+## ⚠️ Resolved: Apple `say` clips (2025-xx)
+
+The first batch of recordings was generated with macOS `say` (Kyoko voice).
+Apple's SLA does not allow redistributing synthesized voice output, so those
+clips were **replaced** by VOICEVOX-generated audio and never checked into git
+(`audio/` is gitignored). No Apple-licensed audio ships with this repo.
 
 ## ⚠️ The Kyoko issue
 
@@ -26,16 +33,26 @@ is no explicit commercial grant.
 **Fine:** personal use, local prototype, testing with a few friends.
 **Not fine:** public deployment or distribution.
 
-## Replacement paths before shipping
+## Regenerating the audio
 
-1. **VOICEVOX / AivisSpeech** — open-source Japanese TTS engine. Voices have
-   character-specific terms (mostly: commercial use OK with attribution to the
-   character, e.g. ずんだもん, 四国めたん). Same local-generation pipeline as `say`,
-   regenerate all clips with one script. Best free option for a JP learning app.
-2. **Cloud neural TTS** — Azure Speech (Nanami) / Google Cloud TTS. Clean
-   commercial licensing via API terms; output may be stored/shipped per their
-   terms. Pay per character synthesized.
-3. **Record a native speaker** — cleanest and best quality. Work-for-hire
+Voice: 四国めたん (ノーマル), generated via the local VOICEVOX engine.
+
+1. Engine lives in `~/Projects/voicevox-engine/macos-arm64/` (v0.26.0, ~1.8GB
+   download, includes all 43 speakers). Start it:
+   ```
+   cd ~/Projects/voicevox-engine/macos-arm64 && ./run
+   ```
+   (listens on http://127.0.0.1:50021 — Ctrl-C to stop)
+2. Regenerate all clips:
+   ```
+   python3 scripts/generate_word_audio_voicevox.py
+   ```
+
+## Alternative paths (recorded for reference)
+
+1. **Cloud neural TTS** — Azure Speech (Nanami) / Google Cloud TTS. Clean
+   commercial licensing via API terms. Pay per character synthesized.
+2. **Record a native speaker** — cleanest and best quality. Work-for-hire
    contract → we own the recordings outright. ~1 hour for the full bank.
 
 ## For the native iOS app later
@@ -48,7 +65,8 @@ is no explicit commercial grant.
 
 ## Verification checklist before public release
 
-- [ ] Replace all Kyoko-generated clips (VOICEVOX regenerate or VOICEVOX regenerate or human recordings)
-- [ ] If VOICEVOX: add required character credits to the About screen
+- [x] Replace Apple-`say` clips with VOICEVOX
+- [ ] Add required VOICEVOX credit to the About screen: **"VOICEVOX:四国めたん"**
 - [ ] MIT notices for transformers.js/Whisper in an open-source notice screen
 - [ ] Confirm word bank spellings with a native speaker (quality, not licensing)
+- [ ] Review VOICEVOX terms for the app-store distribution case (credit requirement may extend to product name/description)

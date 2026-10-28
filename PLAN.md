@@ -77,8 +77,8 @@ Adding content = adding one object to `WORDS` — no code changes.
 | Speech (cloud) | `webkitSpeechRecognition`, lang `ja-JP` — streams audio to Google/Apple ASR; blocked on some networks (VPN/proxy) |
 | Speech (offline) | Auto-fallback to Whisper (transformers.js, WASM, `Xenova/whisper-base` q8) — mic → PCM 16kHz → local inference; model cached after first download (~50MB). Chosen mode persisted in localStorage |
 | Matching | parsed kana === word kana, or typed string === word romaji, or direct kana input; kanji ASR output resolved via `KANJI_READINGS` map |
-| Word audio | 114 pre-generated recordings (macOS `say`, Kyoko voice) → `prototype/audio/words/*.m4a`, ~900KB total. Playback via `<audio>` with pitch-preserving slow-down (0.65x) for the post-answer reward. Fallback: `speechSynthesis` |
-| Voice quality path | Siri's voice is not exposed to any API. Better: download Kyoko (Enhanced/Premium) in System Settings → regenerate; production: native speaker recordings or cloud neural TTS |
+| Word audio | 114 recordings via local VOICEVOX engine (四国めたん ノーマル) → `prototype/audio/words/*.m4a`, ~1MB total. Pitch-preserving slow-down (0.65x) for the post-answer reward. Fallback: `speechSynthesis`. Regenerate: `scripts/generate_word_audio_voicevox.py` (engine: `~/Projects/voicevox-engine/macos-arm64/run`) |
+| Voice quality path | Siri's voice is not exposed to any API. VOICEVOX clips are the shipping quality; native-speaker recordings or cloud neural TTS for production polish |
 
 ## Open questions
 
