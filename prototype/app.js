@@ -11,6 +11,7 @@ let streak = 0;
 let bestStreak = 0;
 let missed = [];          // words answered wrong this session
 let answered = false;     // current card already answered?
+let scored = new Set();   // deck indices already counted in score (arrow-key revisits don't double-count)
 let selection = null;     // { mode:'level'|'custom', level: n|null, rows: [ids] }
 let recognizer = null;    // SpeechRecognition instance
 let listening = false;
@@ -146,6 +147,7 @@ function startSession() {
   streak = 0;
   bestStreak = 0;
   missed = [];
+  scored = new Set();
   saveSelection();
   el('screen-setup').classList.remove('active');
   el('screen-card').classList.add('active');
@@ -201,7 +203,11 @@ function submitAnswer() {
 
 function onCorrect() {
   answered = true;
-  score++;
+  if (!scored.has(cardIndex)) {
+    scored.add(cardIndex);
+    score++;
+    missed = missed.filter(w => w !== deck[cardIndex]);  // redeemed a previously missed card
+  }
   streak++;
   bestStreak = Math.max(bestStreak, streak);
   showFeedback(true, '✅ 正解!');
@@ -245,12 +251,24 @@ function showFeedback(ok, msg) {
   fb.className = 'card-feedback ' + (ok ? 'ok' : 'bad');
 }
 
+// ---------- card navigation (arrow keys) ----------
+function goToCard(idx) {
+  if (idx < 0 || idx >= deck.length) return;
+  stopListening();
+  cleanupWhisperCapture();
+  cardIndex = idx;
+  renderCard();
+}
+
+function prevCard() {
+  goToCard(cardIndex - 1);
+}
+
 function nextCard() {
-  cardIndex++;
-  if (cardIndex >= deck.length) {
+  if (cardIndex + 1 >= deck.length) {
     showDone();
   } else {
-    renderCard();
+    goToCard(cardIndex + 1);
   }
 }
 
@@ -538,6 +556,7 @@ function restartSession() {
   streak = 0;
   bestStreak = 0;
   missed = [];
+  scored = new Set();
   deck = shuffle(deck);
   renderCard();
 }
@@ -576,6 +595,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (answered) nextCard();
       else submitAnswer();
     }
+    ev.stopPropagation();   // don't let typing arrows navigate cards
+  });
+
+  // ← / → navigate previous / next card (only outside the text input —
+  // arrows must keep moving the caret while typing)
+  document.addEventListener('keydown', ev => {
+    if (!el('screen-card').classList.contains('active')) return;
+    if (ev.key === 'ArrowLeft') prevCard();
+    else if (ev.key === 'ArrowRight') nextCard();
   });
 
   renderSetup();
