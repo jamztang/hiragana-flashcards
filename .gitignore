@@ -1,6 +1,8 @@
-# Apple-licensed voice output — DO NOT redistribute (see LICENSING.md)
-audio/
-
 # scratch
 tmp/
 .DS_Store
+
+# Apple-licensed voice output must never be committed (see LICENSING.md).
+# audio/word m4a files are VOICEVOX (四国めたん) and ARE committed.
+audio/*.aiff
+audio/chocho.m4a
