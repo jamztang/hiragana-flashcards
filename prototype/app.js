@@ -18,6 +18,10 @@ let listening = false;
 // voice input modes: 'auto' (cloud ASR) → falls back to 'whisper' (offline) on network errors
 let voiceMode = localStorage.getItem('voiceMode') || 'auto';
 
+// answer mode: 'reading' (romaji/kana/voice) or 'meaning' (type the English meaning;
+// emoji + meaning hidden on the card, mic hidden — ASR hears Japanese, not English)
+let answerMode = localStorage.getItem('answerMode') === 'meaning' ? 'meaning' : 'reading';
+
 // Whisper capture state
 let whisperModulePromise = null;
 let whisperStream = null;
@@ -117,6 +121,13 @@ function renderSetup() {
     ? `${count} words available`
     : 'No words available — pick more characters';
   el('btn-start').disabled = count === 0;
+
+  el('answer-mode').value = answerMode;
+}
+
+function onAnswerModeChange(ev) {
+  answerMode = ev.target.value;
+  localStorage.setItem('answerMode', answerMode);
 }
 
 function onLevelChange(ev) {
@@ -145,6 +156,11 @@ function startSession() {
 function renderCard() {
   const word = deck[cardIndex];
   answered = false;
+  const meaningMode = answerMode === 'meaning';
+
+  const screen = el('screen-card');
+  screen.classList.toggle('mode-meaning', meaningMode);
+  screen.classList.remove('revealed');
 
   el('card-progress').textContent = `${cardIndex + 1} / ${deck.length}`;
   el('card-streak').textContent = `🔥 ${streak}`;
@@ -156,6 +172,9 @@ function renderCard() {
   const input = el('answer-input');
   input.value = '';
   input.disabled = false;
+  input.placeholder = meaningMode
+    ? 'English meaning (cat)'
+    : 'romaji (neko) or kana (ねこ)';
   el('btn-check').disabled = false;
   el('btn-reveal').disabled = false;
   el('btn-next').disabled = true;
@@ -170,7 +189,10 @@ function submitAnswer() {
   if (answered) return;
   const word = deck[cardIndex];
   const raw = el('answer-input').value;
-  if (checkTypedAnswer(raw, word)) {
+  const ok = answerMode === 'meaning'
+    ? checkMeaningAnswer(raw, word)
+    : checkTypedAnswer(raw, word);
+  if (ok) {
     onCorrect();
   } else {
     onWrong();
@@ -183,6 +205,7 @@ function onCorrect() {
   streak++;
   bestStreak = Math.max(bestStreak, streak);
   showFeedback(true, '✅ 正解!');
+  el('screen-card').classList.add('revealed');   // show emoji/meaning again as confirmation
   speakWordSlowly(deck[cardIndex]);   // reward: hear the word slowly after getting it right
   el('answer-input').disabled = true;
   el('btn-check').disabled = true;
@@ -200,10 +223,14 @@ function onWrong() {
 
 function revealAnswer() {
   answered = true;
-  if (!missed.includes(deck[cardIndex])) missed.push(deck[cardIndex]);
+  const word = deck[cardIndex];
+  if (!missed.includes(word)) missed.push(word);
   streak = 0;
-  showFeedback(false, 'Hint: read it out loud, then continue');
-  el('card-romaji').textContent = deck[cardIndex].r;
+  showFeedback(false, answerMode === 'meaning'
+    ? `Answer: ${word.en}`
+    : 'Hint: read it out loud, then continue');
+  el('screen-card').classList.add('revealed');   // show emoji/meaning if hidden
+  el('card-romaji').textContent = word.r;
   el('card-romaji').classList.add('visible');
   el('answer-input').disabled = true;
   el('btn-check').disabled = true;
@@ -496,7 +523,7 @@ function showDone() {
   if (missed.length) {
     missedList.innerHTML =
       '<div class="missed-title">Review these:</div>' +
-      missed.map(w => `<span class="missed-word">${w.k} <small>${w.r}</small></span>`).join('');
+      missed.map(w => `<span class="missed-word">${w.k} <small>${w.r} · ${w.en}</small></span>`).join('');
   } else {
     missedList.innerHTML = '<div class="missed-title">Perfect — no misses! 🎉</div>';
   }
@@ -527,6 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
   selection = loadSelection() || { mode: 'level', level: 5, rows: LEVELS[4].rows.slice() };
 
   el('level-select').addEventListener('change', onLevelChange);
+  el('answer-mode').addEventListener('change', onAnswerModeChange);
   el('btn-custom-toggle').addEventListener('click', () => {
     selection.mode = 'custom';
     selection.level = null;

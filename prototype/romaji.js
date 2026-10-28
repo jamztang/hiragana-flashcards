@@ -195,3 +195,31 @@ function checkSpeechResult(transcript, word) {
   const kana = romajiToKana(norm);
   return !!(kana && kana === word.k);                 // ASR sometimes returns romaji
 }
+
+// ---------- meaning answer checking (意味 mode) ----------
+// normalize an English answer: lowercase, strip punctuation, collapse spaces
+function normalizeEnglish(s) {
+  return (s || '')
+    .toLowerCase()
+    .replace(/[.,!?;:'"()\[\]]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Check a typed English meaning against a word.
+// Accepts: exact meaning, any "/" alternative (e.g. "rice" for "rice / meal"),
+// optional leading article ("a", "an", "the"), and simple plural/singular forms.
+function checkMeaningAnswer(raw, word) {
+  const typed = normalizeEnglish(raw);
+  if (!typed) return false;
+  const stripped = typed.replace(/^(the|a|an) /, '');
+  const alts = (word.en || '').split('/').map(normalizeEnglish);
+  for (const alt of alts) {
+    if (!alt) continue;
+    if (typed === alt || stripped === alt) return true;
+    // simple plural tolerance (vegetables ↔ vegetable, shoes ↔ shoe)
+    if (alt.endsWith('s') && stripped === alt.slice(0, -1)) return true;
+    if (stripped === alt + 's') return true;
+  }
+  return false;
+}

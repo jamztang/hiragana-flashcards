@@ -129,6 +129,14 @@ body {
 }
 .speak-btn:hover { background: #eef1fb; }
 .card-meaning { color: var(--muted); font-size: 15px; margin-top: 10px; }
+
+/* 意味 (meaning) answer mode: emoji + meaning hidden until answered/revealed;
+   mic hidden — speech recognition hears Japanese, but you answer in English */
+.mode-meaning .card-emoji,
+.mode-meaning .card-meaning { display: none; }
+.mode-meaning.revealed .card-emoji,
+.mode-meaning.revealed .card-meaning { display: block; }
+.mode-meaning #btn-mic { display: none; }
 .card-romaji {
   margin-top: 10px; font-size: 15px; color: var(--accent);
   opacity: 0; transition: opacity 0.2s;

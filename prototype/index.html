@@ -28,6 +28,14 @@
         <div id="row-grid" class="row-grid"></div>
       </section>
 
+      <section class="setup-section">
+        <label for="answer-mode" class="section-label">Answer with</label>
+        <select id="answer-mode">
+          <option value="reading">読み方 — romaji / kana / voice</option>
+          <option value="meaning">意味 — type the English meaning</option>
+        </select>
+      </section>
+
       <section class="setup-section start-area">
         <div id="word-count" class="word-count"></div>
         <button id="btn-start" class="btn btn-primary">▶ 練習を始める</button>
@@ -55,6 +63,7 @@
 
       <div class="answer-area">
         <input id="answer-input" type="text" placeholder="romaji (neko) or kana (ねこ)" autocomplete="off">
+        <!-- placeholder is switched per answer mode in app.js -->
         <button id="btn-mic" class="btn btn-mic" title="Answer by voice">🎙 ことば</button>
         <button id="btn-check" class="btn btn-primary">✓</button>
       </div>
