@@ -17,6 +17,16 @@ python3 -m http.server 8766
 
 Open **http://localhost:8766** — done.
 
+### Hosted (GitHub Pages)
+
+The site deploys automatically: pushes to `main` run the test suite
+(`.github/workflows/deploy-pages.yml`) and publish `prototype/` as the site
+root. One-time setup: repo **Settings → Pages → Source: GitHub Actions**.
+Voice input works there too — Pages is served over HTTPS, which the mic and
+speech APIs require.
+
+Open **http://localhost:8766** — done.
+
 > Voice recognition and the audio files need `http://localhost` (or HTTPS) —
 > browsers block microphone access on other insecure origins. To test from a
 > phone, use a tunnel (e.g. `ssh -R` or Tailscale Serve over HTTPS).
