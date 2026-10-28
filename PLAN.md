@@ -40,6 +40,10 @@ This creates natural, self-reinforcing practice: to read ねこ you must know
 - [x] Flash card screen with emoji hint + hiragana target
 - [x] Typed answers: romaji parser converts to kana, compares to word
 - [x] Voice answers: Web Speech API with graceful fallback when unsupported
+- [x] 意味 (meaning) mode — answer with the English instead: emoji + meaning hidden on
+  the card (revealed after correct/reveal), mic hidden (ASR hears Japanese, not English).
+  Matching is case/punctuation/article-insensitive, accepts "/" alternatives and
+  simple plurals; persisted in localStorage
 - [x] Session summary: score, missed words, practice again / change level
 - [x] Selection + stats persisted in localStorage
 
