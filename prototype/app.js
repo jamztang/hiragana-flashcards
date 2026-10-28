@@ -9,9 +9,11 @@ let cardIndex = 0;
 let score = 0;
 let streak = 0;
 let bestStreak = 0;
-let missed = [];          // words answered wrong this session
+let missed = [];          // words for the done-screen review list
 let answered = false;     // current card already answered?
 let scored = new Set();   // deck indices already counted in score (arrow-key revisits don't double-count)
+let failed = new Set();   // deck indices that failed their first attempt (wrong answer or reveal)
+                          // → word goes to review and can't earn score in this pass
 let selection = null;     // { mode:'level'|'custom', level: n|null, rows: [ids] }
 let recognizer = null;    // SpeechRecognition instance
 let listening = false;
@@ -148,6 +150,7 @@ function startSession() {
   bestStreak = 0;
   missed = [];
   scored = new Set();
+  failed = new Set();
   saveSelection();
   el('screen-setup').classList.remove('active');
   el('screen-card').classList.add('active');
@@ -203,10 +206,10 @@ function submitAnswer() {
 
 function onCorrect() {
   answered = true;
-  if (!scored.has(cardIndex)) {
+  if (!scored.has(cardIndex) && !failed.has(cardIndex)) {
     scored.add(cardIndex);
     score++;
-    missed = missed.filter(w => w !== deck[cardIndex]);  // redeemed a previously missed card
+    missed = missed.filter(w => w !== deck[cardIndex]);  // review-round success clears the word
   }
   streak++;
   bestStreak = Math.max(bestStreak, streak);
@@ -222,6 +225,13 @@ function onCorrect() {
 
 function onWrong() {
   streak = 0;
+  // not correct at first try → the word is considered failed: it goes to the
+  // review list now (retrying the same card can still complete it, but the
+  // miss stands and it can't earn score)
+  if (!failed.has(cardIndex)) {
+    failed.add(cardIndex);
+    if (!missed.includes(deck[cardIndex])) missed.push(deck[cardIndex]);
+  }
   showFeedback(false, '❌ Not quite — try again, or reveal');
   el('card').classList.add('shake');
   setTimeout(() => el('card').classList.remove('shake'), 400);
@@ -230,6 +240,7 @@ function onWrong() {
 function revealAnswer() {
   answered = true;
   const word = deck[cardIndex];
+  if (!failed.has(cardIndex)) failed.add(cardIndex);
   if (!missed.includes(word)) missed.push(word);
   streak = 0;
   showFeedback(false, answerMode === 'meaning'
@@ -546,6 +557,24 @@ function showDone() {
   } else {
     missedList.innerHTML = '<div class="missed-title">Perfect — no misses! 🎉</div>';
   }
+  el('btn-review-missed').hidden = !missed.length;
+}
+
+// practice the words missed (or revealed) during the last session again.
+// deck becomes exactly those words; answered-correctly cards are removed
+// from `missed` (redemption) — a clean re-run ends on a perfect done screen.
+function reviewMissed() {
+  if (!missed.length) return;
+  deck = shuffle(missed.slice());
+  cardIndex = 0;
+  score = 0;
+  streak = 0;
+  bestStreak = 0;
+  scored = new Set();
+  failed = new Set();  // a fresh pass: first-try corrects here clear the word from review
+  el('screen-done').classList.remove('active');
+  el('screen-card').classList.add('active');
+  renderCard();
 }
 
 function restartSession() {
@@ -557,6 +586,7 @@ function restartSession() {
   bestStreak = 0;
   missed = [];
   scored = new Set();
+  failed = new Set();
   deck = shuffle(deck);
   renderCard();
 }
@@ -588,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el('btn-mic').addEventListener('click', toggleListening);
   el('btn-speak').addEventListener('click', () => speakWord(deck[cardIndex], 0.7));
   el('btn-restart').addEventListener('click', restartSession);
+  el('btn-review-missed').addEventListener('click', reviewMissed);
   el('btn-setup').addEventListener('click', backToSetup);
 
   el('answer-input').addEventListener('keydown', ev => {

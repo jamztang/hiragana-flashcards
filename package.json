@@ -1,0 +1,15 @@
+{
+  "name": "hiragana-flashcards",
+  "private": true,
+  "type": "module",
+  "description": "Test suite for the hiragana-flashcards prototype (dev-only; the app itself stays dependency-free)",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4",
+    "happy-dom": "^18.0.1"
+  }
+}
