@@ -12,7 +12,24 @@
 | Emoji | Unicode standard characters | Free to use |
 | Web Speech API (recognition) | Browser platform feature | Platform license; fine to call |
 | transformers.js (Whisper offline ASR) | Hugging Face (MIT) + OpenAI Whisper (MIT, incl. model weights) | ✅ Clean for commercial use |
+| VOICEVOX engine (local audio generation) | [VOICEVOX Engine](https://github.com/VOICEVOX/voicevox_engine) — dual-licensed: LGPL-3.0 or paid closed-source alternative | ✅ We run it locally to generate clips; engine is not distributed with the app. Generated audio follows the voice-library terms below |
 | **Word recordings** (`audio/words/*.m4a`) | VOICEVOX engine, 四国めたん (ノーマル) | ✅ Commercial use permitted **with credit: "VOICEVOX:四国めたん"** |
+
+## ✅ The two-layer VOICEVOX credit obligation
+
+1. **VOICEVOX software terms** ([voicevox.hiroshiba.jp/term/](https://voicevox.hiroshiba.jp/term/)):
+   "ご利用の際は VOICEVOX を利用したことがわかるクレジット表記が必要です" —
+   a credit making VOICEVOX usage apparent.
+2. **四国めたん voice library terms** ([zunko.jp guideline](https://zunko.jp/con_ongen_kiyaku.html)):
+   credit **"VOICEVOX:四国めたん"** (commercial + non-commercial OK).
+
+The credit **"VOICEVOX:四国めたん"** satisfies both layers. It must appear in
+the app's About screen (findable, per the guideline) — see CREDITS.md.
+
+**Sublicensing (engine ToS §4):** distributing the generated audio to others
+(e.g. this public repo, or an app that exposes the audio) obligates the
+*recipients* to also follow the credit rules. `CREDITS.md` ships in the repo
+root for this reason — do not remove it.
 
 ## ⚠️ Resolved: Apple `say` clips (2025-xx)
 

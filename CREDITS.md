@@ -22,3 +22,10 @@ VOICEVOX engine running on port 50021).
 
 - [transformers.js](https://github.com/huggingface/transformers.js) — MIT
 - [Whisper](https://github.com/openai/whisper) model weights (`Xenova/whisper-base`) — MIT
+
+## Note for redistributors
+
+If you copy or redistribute the word audio (`prototype/audio/words/*.m4a`),
+you take on the same credit obligations: display **"VOICEVOX:四国めたん"**
+and follow the [VOICEVOX terms](https://voicevox.hiroshiba.jp/term/) and the
+[zunko.jp guideline](https://zunko.jp/con_ongen_kiyaku.html).
