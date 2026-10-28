@@ -26,8 +26,14 @@ Open **http://localhost:8766** — done.
 1. **Setup** — choose a preset level (Level 1 = あ行 only → Level 10 = all
    46 characters + dakuten + small characters) or pick individual character
    rows yourself. The counter shows how many words your selection unlocks.
+   Also choose what you answer with:
+   - **読み方** — romaji / kana / voice (default)
+   - **意味** — the emoji and English meaning are hidden; type the meaning.
+     Matching ignores case, punctuation, a leading article ("the", "a"),
+     and simple plurals — `"rice"` works for ごはん ("rice / meal"),
+     `"shoe"` for くつ ("shoes").
 2. **Practice** — each card shows a noun in hiragana with an emoji and English
-   meaning. Answer by:
+   meaning (both hidden in 意味 mode until you answer). Answer by:
    - **🎙 Voice** — say the word in Japanese; the recognized text is displayed
      live on the card as you speak
    - **⌨️ Typing** — romaji in any common style (`neko`, `shi`/`si`, `gakkou` →
