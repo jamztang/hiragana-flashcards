@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiragana Flashcards</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Setup screen -->
+    <div id="screen-setup" class="screen active">
+      <header class="setup-header">
+        <h1>ひらがな フラッシュカード</h1>
+        <p class="subtitle">Hiragana Flashcards</p>
+        <p class="hint">Pick a level or choose your own character range. Words appear only when
+          they can be written with your selected characters.</p>
+      </header>
+
+      <section class="setup-section">
+        <label for="level-select" class="section-label">Level</label>
+        <select id="level-select"></select>
+        <button id="btn-custom-toggle" class="btn-link">…or pick characters yourself</button>
+      </section>
+
+      <section id="custom-rows" class="setup-section">
+        <div class="section-label">Characters</div>
+        <div id="row-grid" class="row-grid"></div>
+      </section>
+
+      <section class="setup-section start-area">
+        <div id="word-count" class="word-count"></div>
+        <button id="btn-start" class="btn btn-primary">▶ 練習を始める</button>
+      </section>
+    </div>
+
+    <!-- Card screen -->
+    <div id="screen-card" class="screen">
+      <header class="card-header">
+        <button class="btn-icon" onclick="backToSetup()" title="Back to setup">✕</button>
+        <span id="card-progress" class="card-progress"></span>
+        <span id="card-streak" class="card-streak"></span>
+      </header>
+
+      <div id="card" class="card">
+        <div id="card-emoji" class="card-emoji"></div>
+        <div id="card-word" class="card-word"></div>
+        <button id="btn-speak" class="btn-icon speak-btn" title="Play the word">🔊</button>
+        <div id="card-meaning" class="card-meaning"></div>
+        <div id="card-romaji" class="card-romaji"></div>
+        <div id="card-heard" class="card-heard"></div>
+      </div>
+
+      <div id="card-feedback" class="card-feedback"></div>
+
+      <div class="answer-area">
+        <input id="answer-input" type="text" placeholder="romaji (neko) or kana (ねこ)" autocomplete="off">
+        <button id="btn-mic" class="btn btn-mic" title="Answer by voice">🎙 ことば</button>
+        <button id="btn-check" class="btn btn-primary">✓</button>
+      </div>
+
+      <div class="card-actions">
+        <button id="btn-reveal" class="btn btn-ghost">わからない (reveal)</button>
+        <button id="btn-next" class="btn btn-primary" disabled>つぎへ →</button>
+      </div>
+    </div>
+
+    <!-- Done screen -->
+    <div id="screen-done" class="screen">
+      <header class="setup-header">
+        <h1>おわり！</h1>
+        <p class="subtitle">Session complete</p>
+      </header>
+      <section class="setup-section done-section">
+        <div id="done-score" class="done-score"></div>
+        <div id="done-streak" class="done-streak"></div>
+        <div id="done-missed" class="done-missed"></div>
+      </section>
+      <section class="setup-section">
+        <button id="btn-restart" class="btn btn-primary">もう一度 (again)</button>
+        <button id="btn-setup" class="btn">レベルを変える (change level)</button>
+      </section>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="romaji.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

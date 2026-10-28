@@ -1,0 +1,6 @@
+# Apple-licensed voice output — DO NOT redistribute (see LICENSING.md)
+audio/
+
+# scratch
+tmp/
+.DS_Store
