@@ -232,6 +232,7 @@ function revealAnswer() {
   el('screen-card').classList.add('revealed');   // show emoji/meaning if hidden
   el('card-romaji').textContent = word.r;
   el('card-romaji').classList.add('visible');
+  speakWordSlowly(word);   // hear the correct pronunciation on reveal
   el('answer-input').disabled = true;
   el('btn-check').disabled = true;
   el('btn-reveal').disabled = true;
