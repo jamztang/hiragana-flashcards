@@ -12,6 +12,7 @@ let bestStreak = 0;
 let missed = [];          // words answered wrong this session
 let answered = false;     // current card already answered?
 let scored = new Set();   // deck indices already counted in score (arrow-key revisits don't double-count)
+let reviewing = false;    // this session is a review of the previous session's misses
 let selection = null;     // { mode:'level'|'custom', level: n|null, rows: [ids] }
 let recognizer = null;    // SpeechRecognition instance
 let listening = false;
@@ -140,8 +141,9 @@ function onLevelChange(ev) {
   }
 }
 
-function startSession() {
-  deck = shuffle(availableWords());
+function startSession(customDeck, isReview) {
+  deck = customDeck || shuffle(availableWords());
+  reviewing = isReview || false;
   cardIndex = 0;
   score = 0;
   streak = 0;
@@ -164,7 +166,8 @@ function renderCard() {
   screen.classList.toggle('mode-meaning', meaningMode);
   screen.classList.remove('revealed');
 
-  el('card-progress').textContent = `${cardIndex + 1} / ${deck.length}`;
+  el('card-progress').textContent =
+    (reviewing ? `Review · ${cardIndex + 1} / ${deck.length}` : `${cardIndex + 1} / ${deck.length}`);
   el('card-streak').textContent = `🔥 ${streak}`;
   el('card-emoji').textContent = word.e;
   el('card-word').textContent = word.k;
@@ -266,6 +269,16 @@ function prevCard() {
 
 function nextCard() {
   if (cardIndex + 1 >= deck.length) {
+    if (reviewing && missed.length) {
+      // review round: words still missed → shuffle and go again (clears misses
+      // as they're answered right, so this converges)
+      deck = shuffle(missed.slice());
+      cardIndex = 0;
+      scored = new Set();
+      missed = [];
+      renderCard();
+      return;
+    }
     showDone();
   } else {
     goToCard(cardIndex + 1);
@@ -539,13 +552,22 @@ function showDone() {
   el('done-streak').textContent = `Best streak: ${bestStreak} 🔥`;
 
   const missedList = el('done-missed');
+  const btnMissed = el('btn-missed');
   if (missed.length) {
     missedList.innerHTML =
       '<div class="missed-title">Review these:</div>' +
       missed.map(w => `<span class="missed-word">${w.k} <small>${w.r} · ${w.en}</small></span>`).join('');
+    btnMissed.style.display = '';
+    btnMissed.textContent = `🔁 復習 (practice ${missed.length} missed word${missed.length > 1 ? 's' : ''})`;
   } else {
     missedList.innerHTML = '<div class="missed-title">Perfect — no misses! 🎉</div>';
+    btnMissed.style.display = 'none';
   }
+}
+
+// practice just the words you got wrong, until you get them all right
+function practiceMissed() {
+  startSession(shuffle(missed.slice()), true);
 }
 
 function restartSession() {
@@ -557,6 +579,7 @@ function restartSession() {
   bestStreak = 0;
   missed = [];
   scored = new Set();
+  reviewing = false;
   deck = shuffle(deck);
   renderCard();
 }
@@ -564,6 +587,7 @@ function restartSession() {
 function backToSetup() {
   stopListening();
   cleanupWhisperCapture();
+  reviewing = false;
   el('screen-done').classList.remove('active');
   el('screen-setup').classList.add('active');
   renderSetup();
@@ -588,6 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el('btn-mic').addEventListener('click', toggleListening);
   el('btn-speak').addEventListener('click', () => speakWord(deck[cardIndex], 0.7));
   el('btn-restart').addEventListener('click', restartSession);
+  el('btn-missed').addEventListener('click', practiceMissed);
   el('btn-setup').addEventListener('click', backToSetup);
 
   el('answer-input').addEventListener('keydown', ev => {
